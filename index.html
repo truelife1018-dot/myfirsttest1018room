@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>えいかいわ道場</title>
+<style>
+  :root {
+    --bg: #f6f7fb; --card: #ffffff; --text: #1f2430; --sub: #5d6475;
+    --main: #3b6cf6; --main-soft: #e6edff; --ok: #1f9d55; --ok-soft: #e3f6ea;
+    --ng: #d64545; --ng-soft: #fdeaea; --line: #e2e5ee; --star: #f5b301;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14171f; --card: #1e2230; --text: #eef0f6; --sub: #a3a9ba;
+      --main: #7b9cff; --main-soft: #26304d; --ok: #4cc97f; --ok-soft: #1c3527;
+      --ng: #ff7a7a; --ng-soft: #3d2124; --line: #2e3446;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Meiryo", sans-serif;
+    line-height: 1.6; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 16px; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  h1 { font-size: 1.4rem; margin: 0; }
+  .total { font-size: .95rem; color: var(--sub); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  button.scene { text-align: left; cursor: pointer; font: inherit; color: inherit; width: 100%; }
+  button.scene:hover { border-color: var(--main); }
+  .emoji { font-size: 2rem; }
+  .scene-title { font-weight: bold; font-size: 1.1rem; }
+  .scene-sub { color: var(--sub); font-size: .85rem; }
+  .stars { color: var(--star); letter-spacing: 2px; }
+  .btn { font: inherit; border: none; border-radius: 12px; padding: 10px 16px; cursor: pointer;
+    background: var(--main); color: #fff; font-weight: bold; }
+  .btn.ghost { background: var(--main-soft); color: var(--main); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .bubble { border-radius: 16px; padding: 12px 14px; margin: 8px 0; max-width: 90%; }
+  .bubble.them { background: var(--main-soft); }
+  .bubble.me { background: var(--ok-soft); margin-left: auto; }
+  .en { font-size: 1.15rem; font-weight: bold; }
+  .ja { color: var(--sub); font-size: .9rem; }
+  .who { font-size: .8rem; color: var(--sub); }
+  .choices { display: grid; gap: 8px; margin-top: 12px; }
+  .choice { font: inherit; text-align: left; padding: 12px 14px; border-radius: 12px; cursor: pointer;
+    background: var(--card); color: var(--text); border: 2px solid var(--line); }
+  .choice:hover:not(:disabled) { border-color: var(--main); }
+  .choice.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .choice.wrong { border-color: var(--ng); background: var(--ng-soft); }
+  .feedback { margin-top: 12px; padding: 12px; border-radius: 12px; }
+  .feedback.ok { background: var(--ok-soft); }
+  .feedback.ng { background: var(--ng-soft); }
+  .progress { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin: 8px 0 16px; }
+  .progress > div { height: 100%; background: var(--main); transition: width .3s; }
+  .speak-box { margin-top: 12px; padding: 12px; border: 2px dashed var(--line); border-radius: 12px; }
+  .heard { margin-top: 6px; font-size: .95rem; }
+  .tabs { display: flex; gap: 8px; margin: 12px 0; }
+  .tabs button { flex: 1; }
+  .phrase { display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .icon-btn { font: inherit; background: var(--main-soft); color: var(--main); border: none; border-radius: 99px;
+    width: 40px; height: 40px; cursor: pointer; flex-shrink: 0; font-size: 1.1rem; }
+  .result { text-align: center; padding: 24px 16px; }
+  .result .big { font-size: 3rem; }
+  .hint { color: var(--sub); font-size: .85rem; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🗣️ えいかいわ道場</h1>
+    <div class="total" id="total"></div>
+  </header>
+
+  <!-- ホーム画面 -->
+  <section id="home">
+    <p class="hint">練習したい場面をえらんでね。🔊で英語を聞けます。🎤で発音練習もできます（Chrome などで使えます）。</p>
+    <div class="grid" id="sceneList"></div>
+  </section>
+
+  <!-- 場面の画面 -->
+  <section id="scene" class="hidden">
+    <div class="row" style="justify-content:space-between">
+      <button class="btn ghost" id="backBtn">← もどる</button>
+      <div class="scene-title" id="sceneTitle"></div>
+    </div>
+    <div class="tabs">
+      <button class="btn" id="tabTalk">会話れんしゅう</button>
+      <button class="btn ghost" id="tabPhrase">フレーズ一覧</button>
+    </div>
+
+    <div id="talkArea">
+      <div class="progress"><div id="bar"></div></div>
+      <div class="card" id="talkCard"></div>
+    </div>
+
+    <div id="phraseArea" class="card hidden"></div>
+  </section>
+</div>
+
+<script>
+// ===== 会話データ（ここを書きかえれば問題を増やせます） =====
+// them: 相手のセリフ / answer: 正解 / wrong: まちがいの選択肢
+const SCENES = [
+  { id: "intro", emoji: "👋", title: "自己紹介", sub: "はじめて会った人と話そう", partner: "Emma", talk: [
+    { them: ["Hi! I'm Emma. What's your name?", "こんにちは！エマです。あなたの名前は？"],
+      answer: ["My name is Ken. Nice to meet you.", "ぼくの名前はケンです。はじめまして。"],
+      wrong: [["I'm fine, thank you.", "元気です、ありがとう。"], ["It's sunny today.", "今日は晴れです。"]] },
+    { them: ["Nice to meet you too! Where are you from?", "こちらこそ！どこの出身？"],
+      answer: ["I'm from Japan.", "日本出身です。"],
+      wrong: [["I'm thirteen years old.", "13歳です。"], ["I like soccer.", "サッカーが好きです。"]] },
+    { them: ["How old are you?", "何歳？"],
+      answer: ["I'm thirteen years old.", "13歳です。"],
+      wrong: [["I'm from Tokyo.", "東京出身です。"], ["It's three o'clock.", "3時です。"]] },
+    { them: ["What do you like to do?", "何をするのが好き？"],
+      answer: ["I like playing soccer.", "サッカーをするのが好きです。"],
+      wrong: [["Yes, I do.", "はい、そうです。"], ["I have two brothers.", "兄弟が2人います。"]] },
+  ]},
+  { id: "school", emoji: "🏫", title: "学校生活", sub: "クラブや好きな教科", partner: "Mr. Brown", talk: [
+    { them: ["Good morning! How are you today?", "おはよう！今日の調子はどう？"],
+      answer: ["I'm good, thank you. And you?", "元気です、ありがとう。あなたは？"],
+      wrong: [["Good night.", "おやすみなさい。"], ["I'm a student.", "わたしは生徒です。"]] },
+    { them: ["What's your favorite subject?", "好きな教科は何？"],
+      answer: ["My favorite subject is English.", "好きな教科は英語です。"],
+      wrong: [["My favorite color is blue.", "好きな色は青です。"], ["I go to school by bike.", "自転車で学校に行きます。"]] },
+    { them: ["Are you in any club?", "何か部活に入ってる？"],
+      answer: ["Yes, I'm in the tennis club.", "はい、テニス部に入っています。"],
+      wrong: [["No, I'm not hungry.", "いいえ、おなかはすいていません。"], ["I'm in the kitchen.", "台所にいます。"]] },
+    { them: ["Do you have homework today?", "今日は宿題ある？"],
+      answer: ["Yes, I have math homework.", "はい、数学の宿題があります。"],
+      wrong: [["Yes, I have a dog.", "はい、犬を飼っています。"], ["It's on Monday.", "月曜日です。"]] },
+  ]},
+  { id: "shop", emoji: "🛍️", title: "お買い物", sub: "お店で買い物をしよう", partner: "Clerk", talk: [
+    { them: ["Hello. May I help you?", "いらっしゃいませ。何かお探しですか？"],
+      answer: ["Yes, I'm looking for a T-shirt.", "はい、Tシャツを探しています。"],
+      wrong: [["No, I can't swim.", "いいえ、泳げません。"], ["Help me with my homework.", "宿題を手伝って。"]] },
+    { them: ["What color do you like?", "何色がいいですか？"],
+      answer: ["I like blue.", "青が好きです。"],
+      wrong: [["I like dogs.", "犬が好きです。"], ["It's very big.", "とても大きいです。"]] },
+    { them: ["How about this one?", "こちらはいかがですか？"],
+      answer: ["It looks nice. How much is it?", "いいですね。いくらですか？"],
+      wrong: [["How old is it?", "それは何歳ですか？"], ["Where is it from?", "どこから来ましたか？"]] },
+    { them: ["It's 20 dollars.", "20ドルです。"],
+      answer: ["OK. I'll take it.", "わかりました。それをください。"],
+      wrong: [["OK. I'll eat it.", "わかりました。それを食べます。"], ["Nice to meet you.", "はじめまして。"]] },
+  ]},
+  { id: "food", emoji: "🍔", title: "レストラン", sub: "注文してみよう", partner: "Waiter", talk: [
+    { them: ["Hi! Are you ready to order?", "いらっしゃいませ！ご注文はお決まりですか？"],
+      answer: ["Yes. I'd like a hamburger, please.", "はい。ハンバーガーをお願いします。"],
+      wrong: [["Yes, I'm ready to sleep.", "はい、寝る準備ができています。"], ["No, I'm from Japan.", "いいえ、日本出身です。"]] },
+    { them: ["Would you like something to drink?", "お飲み物はいかがですか？"],
+      answer: ["Orange juice, please.", "オレンジジュースをお願いします。"],
+      wrong: [["A pencil, please.", "えんぴつをください。"], ["I like math.", "数学が好きです。"]] },
+    { them: ["For here or to go?", "こちらでお召し上がりですか、お持ち帰りですか？"],
+      answer: ["For here, please.", "ここで食べます。"],
+      wrong: [["Go to school.", "学校に行って。"], ["Here you are.", "はい、どうぞ。"]] },
+    { them: ["Here you are. Enjoy your meal!", "どうぞ。ごゆっくり！"],
+      answer: ["Thank you!", "ありがとう！"],
+      wrong: [["You're welcome.", "どういたしまして。"], ["See you yesterday.", "昨日会いましょう。"]] },
+  ]},
+  { id: "way", emoji: "🗺️", title: "道案内", sub: "道をたずねる・教える", partner: "Tourist", talk: [
+    { them: ["Excuse me. Where is the station?", "すみません。駅はどこですか？"],
+      answer: ["Go straight and turn left.", "まっすぐ行って左に曲がってください。"],
+      wrong: [["It's ten o'clock.", "10時です。"], ["I'm a station.", "わたしは駅です。"]] },
+    { them: ["Is it far from here?", "ここから遠いですか？"],
+      answer: ["No. It's about five minutes on foot.", "いいえ。歩いて5分くらいです。"],
+      wrong: [["Yes, I'm tall.", "はい、背が高いです。"], ["It's my bag.", "わたしのかばんです。"]] },
+    { them: ["Thank you very much!", "本当にありがとう！"],
+      answer: ["You're welcome. Have a nice day!", "どういたしまして。よい一日を！"],
+      wrong: [["Thank you very much!", "本当にありがとう！"], ["I'm sorry, I'm late.", "遅れてごめんなさい。"]] },
+  ]},
+  { id: "weekend", emoji: "🎉", title: "週末の話", sub: "過去形で話そう", partner: "Lisa", talk: [
+    { them: ["What did you do last weekend?", "先週末は何をしたの？"],
+      answer: ["I went to the park with my family.", "家族と公園に行きました。"],
+      wrong: [["I go to the park every day.", "毎日公園に行きます。"], ["I will go to the park.", "公園に行くつもりです。"]] },
+    { them: ["That sounds fun! What did you do there?", "楽しそう！そこで何をしたの？"],
+      answer: ["We had a picnic.", "ピクニックをしました。"],
+      wrong: [["We are a picnic.", "わたしたちはピクニックです。"], ["Yes, it was.", "はい、そうでした。"]] },
+    { them: ["How was the weather?", "天気はどうだった？"],
+      answer: ["It was sunny and warm.", "晴れていて暖かかったです。"],
+      wrong: [["It is my sister.", "それは姉です。"], ["I was hungry.", "おなかがすいていました。"]] },
+    { them: ["Do you have any plans for next weekend?", "来週末の予定はある？"],
+      answer: ["Yes. I'm going to see a movie.", "はい。映画を見に行く予定です。"],
+      wrong: [["Yes. I saw a movie.", "はい。映画を見ました。"], ["No, I don't like plans.", "いいえ、計画は好きではありません。"]] },
+  ]},
+];
+
+// ===== 保存（ブラウザに星の数を記録） =====
+function loadStars() { try { return JSON.parse(localStorage.getItem("eikaiwa-stars") || "{}"); } catch { return {}; } }
+function saveStars(s) { try { localStorage.setItem("eikaiwa-stars", JSON.stringify(s)); } catch {} }
+let stars = loadStars();
+
+// ===== 音声（読み上げ） =====
+function speak(text, slow) {
+  if (!("speechSynthesis" in window)) { alert("このブラウザは読み上げに対応していません"); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US"; u.rate = slow ? 0.6 : 0.9;
+  const v = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith("en"));
+  if (v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+
+// ===== 音声認識（発音チェック） =====
+const Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
+function normalize(s) { return s.toLowerCase().replace(/[^a-z0-9' ]/g, " ").split(/\s+/).filter(Boolean); }
+function similarity(target, said) {
+  const t = normalize(target), s = new Set(normalize(said));
+  if (!t.length) return 0;
+  return Math.round(t.filter(w => s.has(w)).length / t.length * 100);
+}
+
+// ===== 画面 =====
+const $ = id => document.getElementById(id);
+let cur = null, step = 0, score = 0;
+
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function starText(n) { return "★".repeat(n) + "☆".repeat(3 - n); }
+function esc(s) { return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+function renderHome() {
+  $("home").classList.remove("hidden"); $("scene").classList.add("hidden");
+  const total = Object.values(stars).reduce((a, b) => a + b, 0);
+  $("total").textContent = `⭐ ${total} / ${SCENES.length * 3}`;
+  $("sceneList").innerHTML = SCENES.map(s => `
+    <button class="card scene" data-id="${s.id}">
+      <div class="emoji">${s.emoji}</div>
+      <div class="scene-title">${s.title}</div>
+      <div class="scene-sub">${s.sub}</div>
+      <div class="stars">${starText(stars[s.id] || 0)}</div>
+    </button>`).join("");
+  document.querySelectorAll(".scene").forEach(b => b.onclick = () => openScene(b.dataset.id));
+}
+
+function openScene(id) {
+  cur = SCENES.find(s => s.id === id); step = 0; score = 0;
+  $("home").classList.add("hidden"); $("scene").classList.remove("hidden");
+  $("sceneTitle").textContent = `${cur.emoji} ${cur.title}`;
+  showTab("talk"); renderPhrases(); renderStep();
+}
+
+function showTab(t) {
+  $("talkArea").classList.toggle("hidden", t !== "talk");
+  $("phraseArea").classList.toggle("hidden", t !== "phrase");
+  $("tabTalk").className = t === "talk" ? "btn" : "btn ghost";
+  $("tabPhrase").className = t === "phrase" ? "btn" : "btn ghost";
+}
+
+function renderPhrases() {
+  $("phraseArea").innerHTML = "<p class='hint'>大事なフレーズをまとめて聞けます。🐢はゆっくり再生。</p>" +
+    cur.talk.flatMap(q => [q.them, q.answer]).map(([en, ja]) => `
+      <div class="phrase">
+        <div><div class="en">${esc(en)}</div><div class="ja">${esc(ja)}</div></div>
+        <div class="row" style="flex-wrap:nowrap">
+          <button class="icon-btn" data-say="${esc(en)}" title="聞く">🔊</button>
+          <button class="icon-btn" data-slow="${esc(en)}" title="ゆっくり">🐢</button>
+        </div>
+      </div>`).join("");
+  $("phraseArea").querySelectorAll("[data-say]").forEach(b => b.onclick = () => speak(b.dataset.say));
+  $("phraseArea").querySelectorAll("[data-slow]").forEach(b => b.onclick = () => speak(b.dataset.slow, true));
+}
+
+function renderStep() {
+  const total = cur.talk.length;
+  $("bar").style.width = (step / total * 100) + "%";
+  if (step >= total) return renderResult();
+  const q = cur.talk[step];
+  const options = shuffle([{ t: q.answer, ok: true }, ...q.wrong.map(w => ({ t: w, ok: false }))]);
+  $("talkCard").innerHTML = `
+    <div class="who">${esc(cur.partner)}（${step + 1} / ${total}）</div>
+    <div class="bubble them">
+      <div class="en">${esc(q.them[0])}</div>
+      <div class="ja hidden" id="themJa">${esc(q.them[1])}</div>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="say">🔊 聞く</button>
+      <button class="btn ghost" id="slow">🐢 ゆっくり</button>
+      <button class="btn ghost" id="showJa">🇯🇵 日本語を見る</button>
+    </div>
+    <p style="margin-bottom:0"><b>あなたなら何と答える？</b></p>
+    <div class="choices">
+      ${options.map((o, i) => `<button class="choice" data-i="${i}">${esc(o.t[0])}</button>`).join("")}
+    </div>
+    <div id="fb"></div>`;
+  $("say").onclick = () => speak(q.them[0]);
+  $("slow").onclick = () => speak(q.them[0], true);
+  $("showJa").onclick = () => $("themJa").classList.remove("hidden");
+  setTimeout(() => speak(q.them[0]), 300);
+
+  document.querySelectorAll(".choice").forEach(b => b.onclick = () => {
+    const o = options[+b.dataset.i];
+    document.querySelectorAll(".choice").forEach((c, i) => {
+      c.disabled = true;
+      if (options[i].ok) c.classList.add("correct");
+      c.innerHTML += `<div class="ja">${esc(options[i].t[1])}</div>`;
+    });
+    $("themJa").classList.remove("hidden");
+    if (o.ok) score++; else b.classList.add("wrong");
+    showFeedback(o.ok, q);
+  });
+}
+
+function showFeedback(ok, q) {
+  const canSpeak = !!Recog;
+  $("fb").innerHTML = `
+    <div class="feedback ${ok ? "ok" : "ng"}">
+      <b>${ok ? "⭕ せいかい！" : "❌ おしい！"}</b>
+      正しい答え：<b>${esc(q.answer[0])}</b>（${esc(q.answer[1])}）
+    </div>
+    <div class="speak-box">
+      <b>🎤 声に出して言ってみよう</b>
+      <div class="row" style="margin-top:6px">
+        <button class="btn ghost" id="sayAns">🔊 お手本</button>
+        ${canSpeak ? `<button class="btn ghost" id="mic">🎤 話す</button>` : `<span class="hint">（このブラウザでは発音チェックが使えません。Chromeがおすすめです）</span>`}
+      </div>
+      <div class="heard" id="heard"></div>
+    </div>
+    <div class="row" style="margin-top:12px; justify-content:flex-end">
+      <button class="btn" id="next">つぎへ →</button>
+    </div>`;
+  $("sayAns").onclick = () => speak(q.answer[0]);
+  $("next").onclick = () => { step++; renderStep(); };
+  if (canSpeak) $("mic").onclick = () => listen(q.answer[0]);
+}
+
+function listen(target) {
+  const r = new Recog(); r.lang = "en-US"; r.interimResults = false;
+  const btn = $("mic"); btn.disabled = true; btn.textContent = "👂 聞いています…";
+  r.onresult = e => {
+    const said = e.results[0][0].transcript, p = similarity(target, said);
+    const msg = p >= 80 ? "🎉 すばらしい！" : p >= 50 ? "👍 いい感じ！もう一回やってみよう" : "💪 お手本を聞いてもう一度！";
+    $("heard").innerHTML = `聞こえた言葉：「${esc(said)}」<br>一致度：<b>${p}%</b> ${msg}`;
+  };
+  r.onerror = () => { $("heard").textContent = "うまく聞き取れませんでした。マイクを許可して、もう一度ためしてね。"; };
+  r.onend = () => { btn.disabled = false; btn.textContent = "🎤 話す"; };
+  r.start();
+}
+
+function renderResult() {
+  const total = cur.talk.length;
+  const s = score === total ? 3 : score >= total * 0.6 ? 2 : score > 0 ? 1 : 0;
+  if (s > (stars[cur.id] || 0)) { stars[cur.id] = s; saveStars(stars); }
+  $("talkCard").innerHTML = `
+    <div class="result">
+      <div class="big">${s === 3 ? "🏆" : s === 2 ? "😊" : "📚"}</div>
+      <h2>${score} / ${total} 問せいかい</h2>
+      <div class="stars" style="font-size:2rem">${starText(s)}</div>
+      <p>${s === 3 ? "パーフェクト！この場面はバッチリだね！" : "フレーズ一覧で復習して、もう一度チャレンジしよう！"}</p>
+      <div class="row" style="justify-content:center">
+        <button class="btn ghost" id="again">もう一度</button>
+        <button class="btn" id="home2">ほかの場面へ</button>
+      </div>
+    </div>`;
+  $("again").onclick = () => openScene(cur.id);
+  $("home2").onclick = renderHome;
+}
+
+$("backBtn").onclick = () => { speechSynthesis && speechSynthesis.cancel(); renderHome(); };
+$("tabTalk").onclick = () => showTab("talk");
+$("tabPhrase").onclick = () => showTab("phrase");
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
+renderHome();
+</script>
+</body>
+</html>
