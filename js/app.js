@@ -128,7 +128,10 @@
           "<br>次は<b>「" + esc(rec.label + " " + rec.title) + "」</b>だよ。";
         buttons = '<button type="button" class="btn btn-big" data-start="' + rec.id + '">今日の学習をはじめる ▶</button>';
       } else {
-        greet = "すごい！今あるステップは全部クリアしたよ。<br>新しいステップができるまで、復習やすきなステップの見直しをしよう。";
+        var allReady = allSteps.every(function (s) { return hasData(s.id); });
+        greet = allReady
+          ? "おめでとう！中1・中2の全ステップをクリアしたよ。本当によくがんばったね！<br>入試に向けて、復習や、苦手なステップの見直しをつづけよう。"
+          : "すごい！今あるステップは全部クリアしたよ。<br>新しいステップができるまで、復習やすきなステップの見直しをしよう。";
         if (due) buttons = '<button type="button" class="btn btn-big" data-act="review-only">復習をする ▶</button>';
       }
       if (due) {
