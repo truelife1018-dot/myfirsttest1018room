@@ -478,11 +478,12 @@
     if (q.type === "listen") setTimeout(function () { Speech.speak(q.audio); }, 350);
   }
 
+  // 選択肢は毎回シャッフルして表示する（答えの位置を覚えてしまわないように）
   function choicesHTML(q) {
     var html = '<div class="choices">';
-    q.choices.forEach(function (c, i) {
-      html += '<button type="button" class="choice" data-n="' + i + '" data-choice="' + i + '"><span class="choice-no">' + (i + 1) +
-        "</span>" + esc(c) + "</button>";
+    shuffle(q.choices.map(function (_, i) { return i; })).forEach(function (orig, n) {
+      html += '<button type="button" class="choice" data-n="' + n + '" data-choice="' + orig + '"><span class="choice-no">' + (n + 1) +
+        "</span>" + esc(q.choices[orig]) + "</button>";
     });
     return html + "</div>";
   }
@@ -492,7 +493,8 @@
     var buttons = app.querySelectorAll(".choice");
     if (!buttons.length || buttons[0].disabled) return;
     var ok = i === q.answer;
-    buttons.forEach(function (b, k) {
+    buttons.forEach(function (b) {
+      var k = Number(b.dataset.choice);
       b.disabled = true;
       if (k === q.answer) b.classList.add("correct");
       else if (k === i) b.classList.add("wrong");
