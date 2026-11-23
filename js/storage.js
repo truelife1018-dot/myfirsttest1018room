@@ -10,6 +10,8 @@
       settings: { slow: false },
       studyDays: [],
       reviews: {},
+      stats: {},   // ステップごとの解答数と正解数 { ステップID: { n: 解答数, ok: 正解数 } }
+      daily: {},   // 日ごとの解答数と正解数 { "2026-11-23": { n, ok } }
       diag: { part: 0, pos: 0, answers: {}, done: false, skipped: false }
     };
   }
@@ -98,6 +100,39 @@
         .sort(function (a, b) { return a.due < b.due ? -1 : a.due > b.due ? 1 : 0; });
     },
     reviewCount: function () { return Object.keys(state.reviews).length; },
+
+    // ----- 保護者画面のための記録 -----
+    recordAnswer: function (stepId, ok) {
+      var s = state.stats[stepId] || (state.stats[stepId] = { n: 0, ok: 0 });
+      s.n++; if (ok) s.ok++;
+      var t = today();
+      var d = state.daily[t] || (state.daily[t] = { n: 0, ok: 0 });
+      d.n++; if (ok) d.ok++;
+    },
+
+    // ----- バックアップ -----
+    exportData: function () {
+      var copy = JSON.parse(JSON.stringify(state));
+      copy.exportedAt = new Date().toISOString();
+      return copy;
+    },
+    // 読み込んだデータが、このアプリの記録として正しい形かを確かめてから置きかえる
+    importData: function (data) {
+      if (!data || typeof data !== "object" || data.version !== 1 ||
+          typeof data.steps !== "object" || !Array.isArray(data.studyDays)) {
+        return false;
+      }
+      var base = empty();
+      Object.keys(base).forEach(function (k) {
+        if (data[k] === undefined) data[k] = base[k];
+      });
+      delete data.exportedAt;
+      state = data;
+      save();
+      return true;
+    },
+    markBackup: function () { state.settings.lastBackup = today(); save(); },
+    setPin: function (pin) { state.settings.pin = pin; save(); },
 
     // ----- 診断テスト -----
     diag: function () { return state.diag; },

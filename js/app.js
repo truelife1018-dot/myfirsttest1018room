@@ -551,6 +551,7 @@
     // 自動復習の記録
     if (item.review) Store.reviewResult(item.step, item.q, ok);
     else if (!ok) Store.addReview(item.step, item.q);
+    Store.recordAnswer(item.step, ok); // 保護者画面の正解率のため
     Store.save();
 
     var head = ok ? '<span class="fb-title ok">⭕ せいかい！</span>' : '<span class="fb-title ng">おしい！ もう少し</span>';
@@ -709,6 +710,7 @@
       case "next": nextQuestion(); break;
       case "home": renderHome(); break;
       case "review-only": startReviewOnly(); break;
+      case "parent": window.Parent.open(); break;
       case "diag": startDiag(); break;
       case "diag-q": renderDiagQuestion(); break;
       case "diag-idk": answerDiag(false); break;
@@ -740,7 +742,14 @@
     }
   });
 
-  document.getElementById("brand").addEventListener("click", function () { closeModal(); renderHome(); });
+  document.getElementById("brand").addEventListener("click", function () { closeModal(); window.Parent.lock(); renderHome(); });
+  document.getElementById("parentBtn").addEventListener("click", function () { window.Parent.open(); });
+
+  // 保護者画面（parent.js）から使う道具
+  window.App = {
+    show: show, esc: esc, sensei: sensei, home: renderHome, closeModal: closeModal,
+    allSteps: allSteps, known: known, statusOf: statusOf, hasData: hasData
+  };
   var slow = document.getElementById("slowToggle");
   slow.checked = !!Store.get().settings.slow;
   slow.addEventListener("change", function () { Store.setSlow(slow.checked); });
