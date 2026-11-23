@@ -1,0 +1,47 @@
+// 診断テストの問題（各ステップから1問ずつ）
+// answer は正解の番号（0から数える）。表示するときは選択肢の順番をシャッフルします。
+// 「まだ習っていない・わからない」ときは「わからない」ボタンで答えられます。
+window.DIAGNOSTIC = {
+  "g1-R":   { prompt: "小文字「b」の大文字はどれ？", choices: ["B", "D", "P", "R"], answer: 0 },
+  "g1-1-1": { ja: "わたしは13さいです。", sentence: "I (　　) thirteen.", choices: ["am", "are", "is", "be"], answer: 0 },
+  "g1-1-2": { prompt: "「わたしはサッカーが好きです。」を正しく表している文はどれ？", choices: ["I like soccer.", "I am like soccer.", "I soccer like.", "I am soccer like."], answer: 0 },
+  "g1-1-3": { ja: "あなたは野球をしますか。", sentence: "(　　) you play baseball?", choices: ["Do", "Are", "Is", "Am"], answer: 0 },
+  "g1-2-1": { ja: "これはわたしの本です。", sentence: "(　　) is my book.", choices: ["This", "That", "I", "You"], answer: 0 },
+  "g1-2-2": { ja: "彼女はわたしの姉です。", sentence: "(　　) is my sister.", choices: ["She", "He", "Her", "His"], answer: 0 },
+  "g1-3-1": { ja: "わたしは速く泳ぐことができます。", sentence: "I (　　) swim fast.", choices: ["can", "am", "do", "is"], answer: 0 },
+  "g1-3-2": { ja: "あの男の人はだれですか。", sentence: "(　　) is that man?", choices: ["Who", "What", "Where", "When"], answer: 0 },
+  "g1-4-1": { ja: "ケンは毎日テニスをします。", sentence: "Ken (　　) tennis every day.", choices: ["plays", "play", "playing", "is play"], answer: 0 },
+  "g1-4-2": { ja: "彼女はねこが好きではありません。", sentence: "She (　　) like cats.", choices: ["doesn't", "don't", "isn't", "not"], answer: 0 },
+  "g1-5-1": { ja: "あなたはどこに住んでいますか。", sentence: "(　　) do you live?", choices: ["Where", "When", "What", "Who"], answer: 0 },
+  "g1-5-2": { ja: "この部屋で走ってはいけません。", sentence: "(　　) run in this room.", choices: ["Don't", "Not", "No", "Doesn't"], answer: 0 },
+  "g1-6-1": { ja: "あなたは本を何冊持っていますか。", sentence: "How (　　) books do you have?", choices: ["many", "much", "old", "long"], answer: 0 },
+  "g1-6-2": { ja: "机の上にりんごが2つあります。", sentence: "There (　　) two apples on the desk.", choices: ["are", "is", "be", "am"], answer: 0 },
+  "g1-6-3": { ja: "わたしは今テレビを見ています。", sentence: "I (　　) TV now.", choices: ["am watching", "watch", "watching", "am watch"], answer: 0 },
+  "g1-7-1": { ja: "わたしは昨日サッカーをしました。", sentence: "I (　　) soccer yesterday.", choices: ["played", "play", "plays", "playing"], answer: 0 },
+  "g1-7-2": { ja: "わたしは昨日公園に行きました。", sentence: "I (　　) to the park yesterday.", choices: ["went", "goed", "go", "goes"], answer: 0 },
+  "g1-8-1": { ja: "わたしは昨日いそがしかったです。", sentence: "I (　　) busy yesterday.", choices: ["was", "were", "am", "did"], answer: 0 },
+  "g1-8-2": { ja: "そのとき、わたしは本を読んでいました。", sentence: "I (　　) a book then.", choices: ["was reading", "am reading", "were reading", "reading"], answer: 0 },
+  "g2-1-1": { ja: "わたしは明日、京都を訪れるつもりです。", sentence: "I'm (　　) to visit Kyoto tomorrow.", choices: ["going", "go", "will", "went"], answer: 0 },
+  "g2-1-2": { ja: "明日は雨が降るでしょう。", sentence: "It (　　) rain tomorrow.", choices: ["will", "is", "does", "was"], answer: 0 },
+  "g2-2-1": { ja: "あなたは宿題をしなければなりません。", sentence: "You (　　) do your homework.", choices: ["must", "can", "will", "may"], answer: 0 },
+  "g2-2-2": { ja: "あなたはもっと野菜を食べるべきです。", sentence: "You (　　) eat more vegetables.", choices: ["should", "must not", "can't", "won't"], answer: 0 },
+  "g2-3-1": { ja: "もし明日晴れたら、テニスをしましょう。", sentence: "(　　) it is sunny tomorrow, let's play tennis.", choices: ["If", "Because", "That", "But"], answer: 0 },
+  "g2-3-2": { ja: "わたしは、彼は正しいと思います。", sentence: "I think (　　) he is right.", choices: ["that", "if", "because", "but"], answer: 0 },
+  "g2-4-1": { ja: "わたしは医者になりたいです。", sentence: "I want (　　) a doctor.", choices: ["to be", "be", "being", "am"], answer: 0 },
+  "g2-4-2": { ja: "わたしは本を買うために書店に行きました。", sentence: "I went to the bookstore (　　) buy a book.", choices: ["to", "for", "and", "at"], answer: 0 },
+  "g2-4-3": { ja: "わたしにはするべき宿題がたくさんあります。", sentence: "I have a lot of homework (　　).", choices: ["to do", "do", "does", "did"], answer: 0 },
+  "g2-5-1": { ja: "わたしはサッカーをして楽しみました。", sentence: "I enjoyed (　　) soccer.", choices: ["playing", "to play", "play", "played"], answer: 0 },
+  "g2-5-2": { prompt: "「彼はわたしに写真を見せてくれました。」を正しく表している文はどれ？", choices: ["He showed me a picture.", "He showed a picture me.", "He me showed a picture.", "He showed to me a picture."], answer: 0 },
+  "g2-6-1": { ja: "ケンはタクより背が高いです。", sentence: "Ken is (　　) than Taku.", choices: ["taller", "tall", "tallest", "more tall"], answer: 0 },
+  "g2-6-2": { ja: "この本はあの本よりおもしろいです。", sentence: "This book is (　　) interesting than that one.", choices: ["more", "most", "very", "much"], answer: 0 },
+  "g2-6-3": { ja: "わたしは兄と同じくらいの背の高さです。", sentence: "I am as (　　) as my brother.", choices: ["tall", "taller", "tallest", "more tall"], answer: 0 },
+  "g2-7-1": { ja: "この部屋は毎日そうじされます。", sentence: "This room (　　) every day.", choices: ["is cleaned", "cleans", "cleaned", "is cleaning"], answer: 0 },
+  "g2-7-2": { ja: "この本は日本で読まれていますか。", sentence: "(　　) this book read in Japan?", choices: ["Is", "Does", "Do", "Did"], answer: 0 },
+  "g2-8-1": {
+    prompt: "英文を読んで、質問に答えよう。",
+    passage: "I went to Kyoto last summer.\nI visited many old [temples|お寺].\nIt was very hot, but I enjoyed it.",
+    question: "この人が去年の夏にしたことは？",
+    choices: ["京都で古いお寺をたくさん訪れた", "京都の海で泳いだ", "東京でお寺を訪れた", "家で勉強をした"],
+    answer: 0
+  }
+};

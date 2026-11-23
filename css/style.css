@@ -326,3 +326,27 @@ button { font: inherit; color: inherit; }
   .sensei-face { width: 72px; height: 72px; }
   .card, .lesson-body { padding: 16px; }
 }
+
+/* ===== 第2段階：診断テスト・復習 ===== */
+.hero-actions { margin: 8px 0 0; }
+.due-note { display: inline-block; margin-top: 6px; color: var(--primary-dark); }
+.step-unit.review { background: #f4a259; }
+.step-unit.diag { background: #8c7ae6; }
+.node.known .node-dot { background: #fff4d1; border-color: #f2c94c; color: #e0a800; font-size: 1.1rem; }
+.node.known .node-sub { color: #c79100; font-weight: 700; }
+.idk-row { display: flex; justify-content: center; margin-top: 18px; }
+.fb-review { font-size: 0.9rem; color: #c26a1b; }
+.home-foot { margin-top: 8px; }
+.diag-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.diag-list li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: var(--bg); }
+.diag-list li.ok { background: #fff8de; }
+.diag-mark { flex: none; width: 1.6em; text-align: center; }
+.diag-step { flex: 1; font-weight: 700; font-size: 0.95rem; }
+.diag-res { flex: none; font-size: 0.85rem; color: var(--ink-soft); }
+.diag-list li.ok .diag-res { color: #c79100; font-weight: 700; }
+.diag-list.compact { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.diag-list.compact li { padding: 5px 10px; }
+.diag-list.compact .diag-step { font-size: 0.85rem; }
+.diag-list.compact .diag-res { font-size: 0.75rem; }
+.result-sub.first { margin-top: 0; }
+@media (max-width: 640px) { .diag-list.compact { grid-template-columns: 1fr; } }
